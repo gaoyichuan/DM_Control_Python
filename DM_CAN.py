@@ -170,7 +170,6 @@ class MotorControl:
         data_buf[0:4] = P_desired_uint8s
         data_buf[4:8] = P_desired_uint8s
         self.__send_data(motorid, data_buf)
-        # time.sleep(0.001)
         self.recv()  # receive the data from CAN bus
 
     def control_Vel(self, Motor, Vel_desired):
@@ -293,6 +292,11 @@ class MotorControl:
         """
         CANID = msg.arbitration_id
         data = msg.data
+
+        # sometime the motor sends a frame with 4bytes 0100AA01, we don't know why
+        # so just ignore it
+        if len(data) < 6:
+            return
         
         if CANID != 0x00:
             if CANID in self.motors_map:
